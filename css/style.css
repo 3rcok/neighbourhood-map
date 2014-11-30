@@ -1,0 +1,40 @@
+html, body, #map-container { height: 100%; margin: 0; padding: 0;}
+
+#panel {
+    position: absolute;
+    top: 5px;
+    left: 50%;
+    margin-left: -180px;
+    z-index: 5;
+    background-color: #fff;
+    padding: 5px;
+    border: 1px solid #999;
+}
+
+#img {
+    text-align: center;
+}
+
+.media {
+    max-height: 100px;
+}
+
+#firstHeading {
+    text-align: center;
+    font-size: 1.9em;
+    -webkit-margin-before: 0.1em;
+    -webkit-margin-after: 0.1em;
+}
+
+#drop {
+    height: 10px;
+}
+
+.inline {
+    display: inline;
+}
+
+.info {
+    -webkit-margin-before: 0.1em;
+    -webkit-margin-after: 0.2em;
+}
