@@ -3,31 +3,25 @@
  */
 function initialize() {
 
-
     var AucklandBeaches = function (name, latLng) {
         this.name = name;
         this.latLng = latLng;
         var self = this;
-        var jsonFeed = "http://api.flickrat.com/services/feeds/photos_public.gne?format=json&tags="+this.name+"&jsoncallback=?";
-        var req = $.ajax({
+        var flickrUrl = 'http://api.flickr.com/services/feeds/photos_public.gne?format=json&tags=@@searchstring@@&jsoncallback=?';
+        var flickr = $.ajax({
             tags: this.name,
-            url : jsonFeed,
+            url : flickrUrl.replace('@@searchstring@@', this.name),
             dataType : "jsonp",
-            timeout : 10000
+            timeout : 20000
         });
-        req.error(function(HTMLimage) {
-            self.HTMLimage = HTMLimage;
+        flickr.error(function() {
             self.HTMLimage = 'No image available';
             self.setContentString();
-            console.log('Oh noes!');
-            console.log(self.contentString);
         });
-        req.success(function(data) {
-            console.log('Yes! Success!');
+        flickr.success(function(data) {
             var images = data.items;
                 if(images.length > 0) {
                     var image = images[Math.floor(Math.random() * images.length)];
-                    console.log(data);
                     var imageUrl = image.media.m;
                     self.HTMLimage = '<img class="media" src="' + imageUrl + '">';
                 }
@@ -36,38 +30,71 @@ function initialize() {
                 }
             self.setContentString();
         });
-
-
+//        var wikipediaUrl = 'http://en.wikipedia.org/w/api.php?action=parse&format=json&prop=text§ion=0&page=@@searchstring@@&callback=?';
+//        var wiki = $.ajax({
+//            crossOrigin: true,
+//            url: 'meta.wikimedia.org/w/api.php',
+//            title: this.name,
+//            dataType : "jsonp",
+//            timeout : 10000
+//        });
+//        wiki.error(function() {
+//            self.HTMLinfo = 'Unfortunately we could not find any information on Wikipedia.';
+//            self.HTMLtimestamp = '';
+//            var name = this.name;
+//            self.HTMLUrl = 'Please try Google <a href="http://www.google.co.nz/?q=' + name;
+//            self.setContentString();
+//        });
+//        wiki.success(function(data) {
+//            console.log(data);
+//            var header = data.query.search[0].title;
+//            var info = data.query.search[0].snippet;
+//            var timestamp = data.query.search[0].timestamp;
+//            self.HTMLinfo = '<b>' + header + '</b>, ' + info + '';
+//            self.HTMLtimestamp = '(last visited ' + timestamp + ')';
+//            self.HTMLUrl = 'Attribution Wikipedia: <a href="http://en.wikipedia.org/w/index.php?title='+header;
+//            self.setContentString();
+//        });
 
         $.getJSON("http://en.wikipedia.org/w/api.php?callback=?",
             {
                 srsearch: this.name,
                 action: "query",
                 list: "search",
+                timeout: 10000,
                 format: "json"
             }).fail(function () {
-                self.contentString = 'couldnt get';
-                console.log('oh no!')
+                self.HTMLinfo = 'Unfortunately we could not find any information on Wikipedia.';
+                self.HTMLtimestamp = '';
+                self.HTMLUrl = 'Please try Google <a href="http://www.google.com/';
+                self.setContentString();
             })
             .done(function (data) {
                 console.log(data);
-                var header = data.query.search[0].title;
-                var info = data.query.search[0].snippet;
-                var timestamp = data.query.search[0].timestamp;
-                self.HTMLinfo = '<b>' + header + '</b>, ' + info + '';
-                self.HTMLtimestamp = '(last visited ' + timestamp + ')';
-                self.HTMLUrl = header;
+                if(data.query.search.length > 0) {
+                    var header = data.query.search[0].title;
+                    var info = data.query.search[0].snippet;
+                    var timestamp = data.query.search[0].timestamp;
+                    self.HTMLinfo = '<b>' + header + '</b>, ' + info + '';
+                    self.HTMLtimestamp = '(last visited ' + timestamp + ')';
+                    self.HTMLUrl = 'Attribution Wikipedia: <a href="http://en.wikipedia.org/w/index.php?title='+header;
+                }
+                else {
+                    self.HTMLinfo = 'Unfortunately we could not find any information on Wikipedia.';
+                    self.HTMLtimestamp = '';
+                    self.HTMLUrl = 'Please try Google <a href="http://www.google.com/';
+                }
                 self.setContentString();
             });
 
         this.setContentString = function () {
                 self.contentString = '<div id="content">' + '<div id="siteNotice">' + '</div>' + '<h1 id="firstHeading" class="firstHeading">' + this.name + '</h1>' +
                     '<div id="bodyContent">' + '<div id="img">' + self.HTMLimage + '</div>' + '<p id="info" class="info">' + self.HTMLinfo + '</p>' +
-                    '<p class="info">Attribution Wikipedia: <a href="http://en.wikipedia.org/w/index.php?title=' + self.HTMLUrl + '" target="_blank">' + this.name + '</a> ' + self.HTMLtimestamp +
+                    '<p class="info">' + self.HTMLUrl + '" target="_blank">' + this.name + '</a> ' + self.HTMLtimestamp +
                     '</p>' + '</div>' + '</div>';
              };
 
-
+            this.setContentString();
     };
 
     var beaches = [];
@@ -78,6 +105,17 @@ function initialize() {
     beaches.push(new AucklandBeaches('Karioitahi Beach', new google.maps.LatLng(-37.283244, 174.654781)));
     beaches.push(new AucklandBeaches('Maraetai Beach', new google.maps.LatLng(-36.877417, 175.041399)));
     beaches.push(new AucklandBeaches('Mission Bay Beach', new google.maps.LatLng(-36.850158, 174.844482)));
+    beaches.push(new AucklandBeaches('Medlands Beach', new google.maps.LatLng(-36.265824, 175.492885)));
+    beaches.push(new AucklandBeaches('Oneroa Beach', new google.maps.LatLng(-36.784393, 175.017927)));
+    beaches.push(new AucklandBeaches('Orewa Beach', new google.maps.LatLng(-36.585241, 174.696352)));
+    beaches.push(new AucklandBeaches('Pakiri Beach', new google.maps.LatLng(-36.246427, 174.731396)));
+    beaches.push(new AucklandBeaches('Takapuna Beach', new google.maps.LatLng(-36.784514, 174.776405)));
+    beaches.push(new AucklandBeaches('Point Chevalier Beach', new google.maps.LatLng(-36.851243, 174.703640)));
+    beaches.push(new AucklandBeaches('Kaitarakihi Bay', new google.maps.LatLng(-37.007079, 174.584742)));
+    beaches.push(new AucklandBeaches('Beach Haven', new google.maps.LatLng(-36.802488, 174.687014)));
+
+
+
 
 
     var markers = [];
