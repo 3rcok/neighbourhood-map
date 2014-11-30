@@ -30,31 +30,6 @@ function initialize() {
                 }
             self.setContentString();
         });
-//        var wikipediaUrl = 'http://en.wikipedia.org/w/api.php?action=parse&format=json&prop=text§ion=0&page=@@searchstring@@&callback=?';
-//        var wiki = $.ajax({
-//            crossOrigin: true,
-//            url: 'meta.wikimedia.org/w/api.php',
-//            title: this.name,
-//            dataType : "jsonp",
-//            timeout : 10000
-//        });
-//        wiki.error(function() {
-//            self.HTMLinfo = 'Unfortunately we could not find any information on Wikipedia.';
-//            self.HTMLtimestamp = '';
-//            var name = this.name;
-//            self.HTMLUrl = 'Please try Google <a href="http://www.google.co.nz/?q=' + name;
-//            self.setContentString();
-//        });
-//        wiki.success(function(data) {
-//            console.log(data);
-//            var header = data.query.search[0].title;
-//            var info = data.query.search[0].snippet;
-//            var timestamp = data.query.search[0].timestamp;
-//            self.HTMLinfo = '<b>' + header + '</b>, ' + info + '';
-//            self.HTMLtimestamp = '(last visited ' + timestamp + ')';
-//            self.HTMLUrl = 'Attribution Wikipedia: <a href="http://en.wikipedia.org/w/index.php?title='+header;
-//            self.setContentString();
-//        });
 
         $.getJSON("http://en.wikipedia.org/w/api.php?callback=?",
             {
@@ -113,6 +88,22 @@ function initialize() {
     beaches.push(new AucklandBeaches('Point Chevalier Beach', new google.maps.LatLng(-36.851243, 174.703640)));
     beaches.push(new AucklandBeaches('Kaitarakihi Bay', new google.maps.LatLng(-37.007079, 174.584742)));
     beaches.push(new AucklandBeaches('Beach Haven', new google.maps.LatLng(-36.802488, 174.687014)));
+
+    var viewModel = {
+        beaches: ko.observableArray(beaches),
+        query: ko.observable(''),
+        search: function(value) {
+            //remove all current beaches from the view
+            viewModel.beaches.removeAll();
+            for(var x in beaches) {
+                if(beaches[x].name.toLowerCase().indexOf(value.toLowerCase()) >= 0) {
+                    viewModel.beaches.push(beaches[x]);
+                }
+            }
+        }
+    };
+    ko.applyBindings(viewModel);
+    viewModel.query.subscribe(viewModel.search);
 
 
 

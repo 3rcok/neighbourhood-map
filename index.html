@@ -12,9 +12,20 @@
         <p class="inline">Are you ready to look at some cool beaches in Auckland?</p>
         <button class="inline" id="drop">Show me</button>
     </div>
+    <div id="searchbar">
+        <input placeholder="Search for beaches" type="search" data-bind="value: query, valueUpdate: 'keyup'" autocomplete="off">
+    </div>
+    <div id="listbox">
+        <ul data-bind="template: {name:'beaches', foreach:beaches}"></ul>
+    </div>
     <div id="map-container">
     </div>
 
+    <script type="text/html" id="beaches">
+        <li>
+            <strong data-bind="text: name"></strong>
+        </li>
+    </script>
     <script type="text/javascript" src="js/jquery-1.11.1.min.js"></script>
     <script type="text/javascript"
             src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB-hQ9XSdTmxybMtadlYOCsMkH5Yi6cBoI&libraries=weather">

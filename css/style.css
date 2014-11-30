@@ -11,6 +11,28 @@ html, body, #map-container { height: 100%; margin: 0; padding: 0;}
     border: 1px solid #999;
 }
 
+#listbox {
+    position: absolute;
+    top: 15%;
+    left: 78%;
+    z-index: 5;
+    border: 1px solid #999;
+    background-color: #fff;
+    opacity: 0.75;
+}
+
+#listbox li {
+    list-style-type: none;
+}
+
+#searchbar {
+    position: absolute;
+    top: 12%;
+    left: 5%;
+    z-index: 5;
+    border: 1px solid #999;
+}
+
 #img {
     text-align: center;
 }
