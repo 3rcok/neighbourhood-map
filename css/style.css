@@ -24,12 +24,15 @@ html, body, #map-container { height: 100%; margin: 0; padding: 0;}
 
 #listbox {
     position: absolute;
-    top: 25%;
+    top: 20%;
     left: 78%;
     z-index: 5;
     border: 1px solid #999;
     background-color: #fff;
     opacity: 0.75;
+    overflow-y: scroll;
+    height: 400px;
+    width: 200px;
 }
 
 #listbox li {
@@ -56,19 +59,22 @@ html, body, #map-container { height: 100%; margin: 0; padding: 0;}
     color: #207cca;
 }
 
+#listbox img {
+    max-width: 130px;
+}
+
 #searchbar {
-    width: 250px;
+    width: 400px;
     margin:  30px auto;
     position: absolute;
     top: 12%;
-    left: 5%;
     z-index: 5;
 }
 
 .search {
-    padding: 8px 18px;
-    background: rgba(50, 50, 50, 0.2);
-    border: 0px solid #dbdbdb;
+    padding: 8px 20px;
+    border: 1px solid #dbdbdb;
+    background: url(http://i.imgur.com/lFkqn.png) left center no-repeat;
 }
 
 .button {

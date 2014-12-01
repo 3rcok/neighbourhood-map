@@ -7,27 +7,28 @@ function initialize() {
         this.name = name;
         this.latLng = latLng;
         var self = this;
+        self.HTMLimage = ko.observable();
         var flickrUrl = 'http://api.flickr.com/services/feeds/photos_public.gne?format=json&tags=@@searchstring@@&jsoncallback=?';
         var flickr = $.ajax({
             tags: this.name,
-            url : flickrUrl.replace('@@searchstring@@', this.name),
-            dataType : "jsonp",
-            timeout : 20000
+            url: flickrUrl.replace('@@searchstring@@', this.name),
+            dataType: "jsonp",
+            timeout: 20000
         });
-        flickr.error(function() {
-            self.HTMLimage = 'No image available';
+        flickr.error(function () {
+            self.HTMLimage('http://nancyharmonjenkins.com/wp-content/plugins/nertworks-all-in-one-social-share-tools/images/no_image.png');
             self.setContentString();
         });
-        flickr.success(function(data) {
+        flickr.success(function (data) {
             var images = data.items;
-                if(images.length > 0) {
-                    var image = images[Math.floor(Math.random() * images.length)];
-                    var imageUrl = image.media.m;
-                    self.HTMLimage = '<img class="media" src="' + imageUrl + '">';
-                }
-                else {
-                    self.HTMLimage = 'No image available';
-                }
+            if (images.length > 0) {
+                var image = images[Math.floor(Math.random() * images.length)];
+                var imageUrl = image.media.m;
+                self.HTMLimage(imageUrl);
+            }
+            else {
+                self.HTMLimage('http://nancyharmonjenkins.com/wp-content/plugins/nertworks-all-in-one-social-share-tools/images/no_image.png');
+            }
             self.setContentString();
         });
 
@@ -45,14 +46,13 @@ function initialize() {
                 self.setContentString();
             })
             .done(function (data) {
-                console.log(data);
-                if(data.query.search.length > 0) {
+                if (data.query.search.length > 0) {
                     var header = data.query.search[0].title;
                     var info = data.query.search[0].snippet;
                     var timestamp = data.query.search[0].timestamp;
                     self.HTMLinfo = '<b>' + header + '</b>, ' + info + '';
                     self.HTMLtimestamp = '(last visited ' + timestamp + ')';
-                    self.HTMLUrl = 'Attribution Wikipedia: <a href="http://en.wikipedia.org/w/index.php?title='+header;
+                    self.HTMLUrl = 'Attribution Wikipedia: <a href="http://en.wikipedia.org/w/index.php?title=' + header;
                 }
                 else {
                     self.HTMLinfo = 'Unfortunately we could not find any information on Wikipedia.';
@@ -63,13 +63,13 @@ function initialize() {
             });
 
         this.setContentString = function () {
-                self.contentString = '<div id="content">' + '<div id="siteNotice">' + '</div>' + '<h1 id="firstHeading" class="firstHeading">' + this.name + '</h1>' +
-                    '<div id="bodyContent">' + '<div id="img">' + self.HTMLimage + '</div>' + '<p id="info" class="info">' + self.HTMLinfo + '</p>' +
-                    '<p class="info">' + self.HTMLUrl + '" target="_blank">' + this.name + '</a> ' + self.HTMLtimestamp +
-                    '</p>' + '</div>' + '</div>';
-             };
+            self.contentString = '<div id="content">' + '<div id="siteNotice">' + '</div>' + '<h1 id="firstHeading" class="firstHeading">' + this.name + '</h1>' +
+                '<div id="bodyContent">' + '<div id="img"><img class="media" src="' + self.HTMLimage() + '"/></div>' + '<p id="info" class="info">' + self.HTMLinfo + '</p>' +
+                '<p class="info">' + self.HTMLUrl + '" target="_blank">' + this.name + '</a> ' + self.HTMLtimestamp +
+                '</p>' + '</div>' + '</div>';
+        };
 
-            this.setContentString();
+        this.setContentString();
     };
 
     var beaches = [];
@@ -88,22 +88,26 @@ function initialize() {
     beaches.push(new AucklandBeaches('Point Chevalier Beach', new google.maps.LatLng(-36.851243, 174.703640)));
     beaches.push(new AucklandBeaches('Kaitarakihi Bay', new google.maps.LatLng(-37.007079, 174.584742)));
     beaches.push(new AucklandBeaches('Beach Haven', new google.maps.LatLng(-36.802488, 174.687014)));
-
+    console.log(beaches);
     var viewModel = {
         beaches: ko.observableArray(beaches),
-        query: ko.observable(''),
-        search: function(value) {
-            //remove all current beaches from the view
-            viewModel.beaches.removeAll();
-            for(var x in beaches) {
-                if(beaches[x].name.toLowerCase().indexOf(value.toLowerCase()) >= 0) {
-                    viewModel.beaches.push(beaches[x]);
-                }
-            }
-        }
+        query: ko.observable()
     };
+
+    viewModel.filteredBeaches = ko.computed(function () {
+        if (!viewModel.query()) {
+            return viewModel.beaches();
+        } else {
+            return ko.utils.arrayFilter(viewModel.beaches(), function (beach) {
+                if(beach.name.toLowerCase().indexOf(viewModel.query()) > -1) {
+                    return beach.name;
+                }
+            });
+        }
+    });
+
     ko.applyBindings(viewModel);
-    viewModel.query.subscribe(viewModel.search);
+
 
     var markers = [];
     var mapOptions = {
