@@ -5,17 +5,19 @@
     <title>Beaches in Auckland</title>
     <script type='text/javascript' src='js/knockout-3.2.0.js'></script>
     <link rel="stylesheet" type="text/css" href="css/style.css">
-
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
-    <div id="panel" style="margin-left: -62px">
-        <p class="inline">Are you ready to look at some cool beaches in Auckland?</p>
-        <button class="inline" id="drop">Show me</button>
-    </div>
-    <div id="searchbar">
-        <input placeholder="Search for beaches" type="search" data-bind="value: query, valueUpdate: 'keyup'" autocomplete="off">
-    </div>
+<div id="header">
+    <h1>Beaches in Auckland</h1>
+    <form id="searchbar">
+        <input class="search" placeholder="Search for beaches" type="search" data-bind="value: query, valueUpdate: 'keyup'" autocomplete="off" required>
+        <input class="button" type="button" value=">>">
+    </form>
+</div>
     <div id="listbox">
+        <h2>Popular Beaches</h2>
+        <button class="listbox-button" id="drop">Show me all</button>
         <ul data-bind="template: {name:'beaches', foreach:beaches}"></ul>
     </div>
     <div id="map-container">

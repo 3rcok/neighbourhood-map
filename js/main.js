@@ -105,13 +105,9 @@ function initialize() {
     ko.applyBindings(viewModel);
     viewModel.query.subscribe(viewModel.search);
 
-
-
-
-
     var markers = [];
     var mapOptions = {
-        center: { lat: -36.892728, lng: 174.924193},
+        center: { lat: -36.860771, lng: 175.416211},
         zoom: 9
     };
     var map = new google.maps.Map(document.getElementById('map-container'),
