@@ -3,11 +3,20 @@
  */
 function initialize() {
 
-    var AucklandBeaches = function (name, latLng) {
+    var AucklandBeaches = function (name, lat, lng) {
         this.name = name;
-        this.latLng = latLng;
+        this.lat = ko.observable(lat);
+        this.lng = ko.observable(lng);
         var self = this;
+        self.marker = new google.maps.Marker( {
+            position: new google.maps.LatLng(this.lat(), this.lng()),
+            title: this.name,
+            animation: google.maps.Animation.DROP
+        });
         self.HTMLimage = ko.observable();
+        this.infoWindow = new google.maps.InfoWindow({
+            maxWidth: 220
+        });
         var flickrUrl = 'http://api.flickr.com/services/feeds/photos_public.gne?format=json&tags=@@searchstring@@&jsoncallback=?';
         var flickr = $.ajax({
             tags: this.name,
@@ -44,6 +53,7 @@ function initialize() {
                 self.HTMLtimestamp = '';
                 self.HTMLUrl = 'Please try Google <a href="http://www.google.com/';
                 self.setContentString();
+                self.active = false;
             })
             .done(function (data) {
                 if (data.query.search.length > 0) {
@@ -65,7 +75,7 @@ function initialize() {
         this.setContentString = function () {
             self.contentString = '<div id="content">' + '<div id="siteNotice">' + '</div>' + '<h1 id="firstHeading" class="firstHeading">' + this.name + '</h1>' +
                 '<div id="bodyContent">' + '<div id="img"><img class="media" src="' + self.HTMLimage() + '"/></div>' + '<p id="info" class="info">' + self.HTMLinfo + '</p>' +
-                '<p class="info">' + self.HTMLUrl + '" target="_blank">' + this.name + '</a> ' + self.HTMLtimestamp +
+                '<p class="info">' + self.HTMLUrl + '" target="_blank"> Read full article </a> ' + self.HTMLtimestamp +
                 '</p>' + '</div>' + '</div>';
         };
 
@@ -73,43 +83,114 @@ function initialize() {
     };
 
     var beaches = [];
-    beaches.push(new AucklandBeaches('Piha Beach', new google.maps.LatLng(-36.956340, 174.468096)));
-    beaches.push(new AucklandBeaches('Bethells Beach', new google.maps.LatLng(-36.892240, 174.444851)));
-    beaches.push(new AucklandBeaches('Waipiro Bay', new google.maps.LatLng(-38.016134, 178.335799)));
-    beaches.push(new AucklandBeaches('Muriwai Beach', new google.maps.LatLng(-36.888409, 174.441127)));
-    beaches.push(new AucklandBeaches('Karioitahi Beach', new google.maps.LatLng(-37.283244, 174.654781)));
-    beaches.push(new AucklandBeaches('Maraetai Beach', new google.maps.LatLng(-36.877417, 175.041399)));
-    beaches.push(new AucklandBeaches('Mission Bay Beach', new google.maps.LatLng(-36.850158, 174.844482)));
-    beaches.push(new AucklandBeaches('Medlands Beach', new google.maps.LatLng(-36.265824, 175.492885)));
-    beaches.push(new AucklandBeaches('Oneroa Beach', new google.maps.LatLng(-36.784393, 175.017927)));
-    beaches.push(new AucklandBeaches('Orewa Beach', new google.maps.LatLng(-36.585241, 174.696352)));
-    beaches.push(new AucklandBeaches('Pakiri Beach', new google.maps.LatLng(-36.246427, 174.731396)));
-    beaches.push(new AucklandBeaches('Takapuna Beach', new google.maps.LatLng(-36.784514, 174.776405)));
-    beaches.push(new AucklandBeaches('Point Chevalier Beach', new google.maps.LatLng(-36.851243, 174.703640)));
-    beaches.push(new AucklandBeaches('Kaitarakihi Bay', new google.maps.LatLng(-37.007079, 174.584742)));
-    beaches.push(new AucklandBeaches('Beach Haven', new google.maps.LatLng(-36.802488, 174.687014)));
-    console.log(beaches);
+    beaches.push(new AucklandBeaches('Piha Beach', -36.956340, 174.468096));
+    beaches.push(new AucklandBeaches('Bethells Beach', -36.892240, 174.444851));
+    beaches.push(new AucklandBeaches('Muriwai Beach', -36.888409, 174.441127));
+    beaches.push(new AucklandBeaches('Karioitahi Beach', -37.283244, 174.654781));
+    beaches.push(new AucklandBeaches('Maraetai Beach', -36.877417, 175.041399));
+    beaches.push(new AucklandBeaches('Mission Bay Beach', -36.850158, 174.844482));
+    beaches.push(new AucklandBeaches('Medlands Beach', -36.265824, 175.492885));
+    beaches.push(new AucklandBeaches('Oneroa Beach', -36.784393, 175.017927));
+    beaches.push(new AucklandBeaches('Orewa Beach', -36.585241, 174.696352));
+    beaches.push(new AucklandBeaches('Pakiri Beach', -36.246427, 174.731396));
+    beaches.push(new AucklandBeaches('Takapuna Beach', -36.784514, 174.776405));
+    beaches.push(new AucklandBeaches('Point Chevalier Beach', -36.851243, 174.703640));
+    beaches.push(new AucklandBeaches('Kaitarakihi Bay', -37.007079, 174.584742));
+    beaches.push(new AucklandBeaches('Beach Haven', -36.802488, 174.687014));
+    beaches.push(new AucklandBeaches('Mercer Bay', -36.978575, 174.470000));
+    beaches.push(new AucklandBeaches('Snells Beach', -36.416980, 174.729525));
+
     var viewModel = {
         beaches: ko.observableArray(beaches),
-        query: ko.observable()
+        query: ko.observable(),
+        chosenBeachId: ko.observable()
     };
 
+    var infoWindow = new google.maps.InfoWindow({
+        maxWidth: 220
+    });
+
+// add all markers
+    var addAllMarkers = function () {
+        for(var i = 0, len = beaches.length; i < len; i++) {
+            beaches[i].marker.setMap(map);
+        }
+    };
+
+//remove all markers from the map
+    var removeAllMarkers = function() {
+        for(var i = 0, len = beaches.length; i < len; i++) {
+            beaches[i].marker.setMap(null);
+        }
+    };
+
+    var closeOpenInfoWindows = function() {
+        for(var i = 0, len = beaches.length; i < len; i ++){
+            beaches[i].infoWindow.close();
+        }
+    };
+
+
     viewModel.filteredBeaches = ko.computed(function () {
-        if (!viewModel.query()) {
+        closeOpenInfoWindows();
+        if (!viewModel.query()||!$('.search').val()) {
+            addAllMarkers();
             return viewModel.beaches();
         } else {
+            removeAllMarkers();
             return ko.utils.arrayFilter(viewModel.beaches(), function (beach) {
-                if(beach.name.toLowerCase().indexOf(viewModel.query()) > -1) {
+                if(beach.name.toLowerCase().indexOf(viewModel.query().toLowerCase()) > -1) {
+                    addMarker(beach);
                     return beach.name;
                 }
             });
         }
     });
 
+
+    viewModel.showAllBeaches = (function() {
+        closeOpenInfoWindows();
+        if (!viewModel.query()) {
+            for (var i = 0, len = beaches.length; i < len; i++) {
+            var beach = beaches[i];
+            beach.infoWindow.close();
+            (function (beach) {
+                setTimeout(function () {
+                    addMarker(beach);
+                }, i * 200);
+            })(beach);
+                console.log('no query ');
+                console.log(viewModel.beaches());
+        }
+            return viewModel.beaches();
+        } else {
+            $('.search').val('');
+            addAllMarkers();
+            console.log('query ');
+            console.log(viewModel.beaches());
+            return viewModel.beaches();
+        }
+    });
+
+    viewModel.getName = (function(beach) {
+        removeAllMarkers();
+        addMarker(beach);
+
+        return ko.utils.arrayFilter(viewModel.beaches(), function() {
+            if(beach.name.toLowerCase().indexOf(this.name.toLowerCase()) > -1){
+                console.log(beach.name);
+                return beach.name;
+            }
+        });
+    });
+
+    viewModel.goToChosenBeach = function(beach) {
+        viewModel.chosenBeachId(beach);
+        console.log('this'+viewModel.chosenBeachId(beach));
+    };
+
     ko.applyBindings(viewModel);
 
-
-    var markers = [];
     var mapOptions = {
         center: { lat: -36.860771, lng: 175.416211},
         zoom: 9
@@ -117,54 +198,69 @@ function initialize() {
     var map = new google.maps.Map(document.getElementById('map-container'),
         mapOptions);
 
+// drop all markers onto the map
+//    $('#drop').on('click', function () {
+//        $('.search').val('');
+//        for (var i = 0, len = beaches.length; i < len; i++) {
+//            var beach = beaches[i];
+//            beach.infoWindow.close();
+//            (function (beach) {
+//                setTimeout(function () {
+//                    addMarker(beach);
+//                }, i * 200);
+//            })(beach);
+//        }
+//
+//    });
 
-    $('#drop').on('click', function () {
-        for (var i = 0, len = beaches.length; i < len; i++) {
-            var beach = beaches[i];
-            (function (beach) {
-                setTimeout(function () {
-                    addMarker(beach);
-                }, i * 200);
-            })(beach);
-        }
-    });
 
+// add markers to the map
     var addMarker = function (beach) {
-        //for (var i = 0; i < beaches.length; i++) {
-        var marker = new google.maps.Marker({
-            position: beach.latLng,
-            map: map,
-            draggable: false,
-            title: beach.name,
-            animation: google.maps.Animation.DROP
-        });
-        markers.push(marker);
-        // }
+        beach.marker.setMap(map);
 
-//        for (var j = 0, len = markers.length; j < len; j++) {
-//            var marker = markers[j];
-//            google.maps.event.addListener(marker, 'click', function () {
-//                infoWindow.open(map, marker);
-//                console.log(marker);
-//            });
-//        }
-//    };
-        var bindClick = function (marker) {
+
+// open info window when a marker is being clicked on
+        var bindClick = function () {
             return function () {
-                infoWindow.open(map, marker);
-            };
+                for(var i = 0, len = beaches.length; i < len; i ++){
+                    beaches[i].infoWindow.close();
+                }
+                beach.infoWindow.setContent(beach.contentString);
+                beach.infoWindow.open(map, this);
+                map.panTo(this.position);
+            }
         };
+        google.maps.event.addListener(beach.marker, 'click', bindClick(beach.marker));
 
-//        for (var j = 0, len = markers.length; j < len; j++) {
-        //  var marker = markers[j];
-        google.maps.event.addListener(marker, 'click', bindClick(marker));
-//        }
 
-        var infoWindow = new google.maps.InfoWindow({
-            content: beach.contentString,
-            maxWidth: 220
-        });
+
+//create info window
+//        var infoWindow = new google.maps.InfoWindow({
+//            content: beach.contentString,
+//            maxWidth: 220
+//       });
+
+//        for(var i = 0; i < beaches.length; i++){
+//            var marker = beaches[i].marker;
+//            var content = beaches[i].contentString;
+//            google.maps.event.addListener(beach.marker, 'click', function (e) {
+//             infoWindow.setContent(beach.contentString);
+//                infoWindow.open(map, this);
+//                map.panTo(this.position);
+//            });
+
+
     };
+
+
+//// check if there is an open info window
+//    function isInfoWindowOpen() {
+//        if(infoWindow) {
+//            infoWindow.close();
+//        }
+//    }
+
+
 
     var weatherLayer = new google.maps.weather.WeatherLayer({
         temperatureUnits: google.maps.weather.TemperatureUnit.CELSIUS

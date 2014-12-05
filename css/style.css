@@ -2,24 +2,34 @@ html, body, #map-container { height: 100%; margin: 0; padding: 0;}
 
 #header {
     background-color: #fff;
-    position: absolute;
+    position: fixed;
     top: 0;
     left: 0;
     width: 100%;
-    height: 10%;
-    z-index: 5;
+    z-index: 1000;
     text-align: center;
 }
 
-#panel {
+#searchbar {
+    width: 400px;
+    margin:  23px auto;
     position: absolute;
-    top: 5px;
-    left: 50%;
-    margin-left: -180px;
+    top: 12%;
     z-index: 5;
-    background-color: #fff;
-    padding: 5px;
-    border: 1px solid #999;
+}
+
+.button {
+    position: relative;
+    padding: 6px 15px;
+    left: -5px;
+    border: 2px solid #207cca;
+    background-color: #207cca;
+    color: #fafafa;
+}
+
+.button:hover {
+    background-color: #fafafa;
+    color: #207cca;
 }
 
 #listbox {
@@ -30,9 +40,21 @@ html, body, #map-container { height: 100%; margin: 0; padding: 0;}
     border: 1px solid #999;
     background-color: #fff;
     opacity: 0.75;
-    overflow-y: scroll;
-    height: 400px;
     width: 200px;
+}
+#list-content {
+    overflow-y: scroll;
+    height: 300px;
+    width: 200px;
+}
+
+#list-header {
+    padding-bottom: 10px;
+}
+
+#list-footer {
+    font-size: 0.7em;
+    text-align: center;
 }
 
 #listbox li {
@@ -59,17 +81,27 @@ html, body, #map-container { height: 100%; margin: 0; padding: 0;}
     color: #207cca;
 }
 
-#listbox img {
-    max-width: 130px;
+.listbox-item {
+    font-size: 0.8em;
 }
 
-#searchbar {
-    width: 400px;
-    margin:  30px auto;
-    position: absolute;
-    top: 12%;
-    z-index: 5;
+.listbox-item h3 {
+    -webkit-margin-after: 0em;
 }
+
+#listbox img {
+    max-width: 130px;
+    -webkit-margin-before: 0.2em;
+}
+
+.media {
+    max-height: 100px;
+}
+
+li .media:hover {
+    border: 3px solid #207cca;
+}
+
 
 .search {
     padding: 8px 20px;
@@ -77,19 +109,7 @@ html, body, #map-container { height: 100%; margin: 0; padding: 0;}
     background: url(http://i.imgur.com/lFkqn.png) left center no-repeat;
 }
 
-.button {
-    position: relative;
-    padding: 6px 15px;
-    left: -5px;
-    border: 2px solid #207cca;
-    background-color: #207cca;
-    color: #fafafa;
-}
 
-.button:hover {
-    background-color: #fafafa;
-    color: #207cca;
-}
 
 #map-container {
     margin-top: 7%;
@@ -99,9 +119,6 @@ html, body, #map-container { height: 100%; margin: 0; padding: 0;}
     text-align: center;
 }
 
-.media {
-    max-height: 100px;
-}
 
 #firstHeading {
     text-align: center;
