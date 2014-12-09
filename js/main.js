@@ -2,7 +2,10 @@
  * Created by cornelia on 29/11/14.
  */
 function initialize() {
-
+/**
+* Beach class that defines the information that is being collected from Flickr and Wikipedia,
+ * which is being displayed on the markers
+ */
     var AucklandBeaches = function (name, lat, lng) {
         this.name = name;
         this.lat = ko.observable(lat);
@@ -81,7 +84,9 @@ function initialize() {
 
         this.setContentString();
     };
-
+/**
+* Instantiate objects
+ */
     var beaches = [];
     beaches.push(new AucklandBeaches('Piha Beach', -36.956340, 174.468096));
     beaches.push(new AucklandBeaches('Bethells Beach', -36.892240, 174.444851));
@@ -131,8 +136,9 @@ function initialize() {
             beaches[i].infoWindow.close();
         }
     };
-
-
+/**
+* Watch the search box for input and update the listbox accordingly
+ */
     viewModel.filteredBeaches = ko.computed(function () {
         closeOpenInfoWindows();
         if (!viewModel.query()) {
@@ -148,22 +154,27 @@ function initialize() {
             });
         }
     });
-
+/**
+* Update the list and map when the "show all" button is clicked
+ */
     viewModel.showAllBeaches = (function() {
         closeOpenInfoWindows();
         viewModel.query('');
+        var addMarkers = function(beach) {
+            setTimeout(function() {
+                addMarker(beach);
+            });
+        }(beach);
         for (var i = 0, len = beaches.length; i < len; i++) {
             var beach = beaches[i];
             beach.infoWindow.close();
-            (function (beach) {
-                setTimeout(function () {
-                    addMarker(beach);
-                });
-            })(beach);
+            addMarkers(beach);
         }
             return viewModel.beaches();
     });
-
+/**
+* Update the list and map when the user clicks on a beach image
+ */
     viewModel.getName = (function(beach) {
         removeAllMarkers();
         addMarker(beach);
@@ -176,7 +187,9 @@ function initialize() {
     });
 
     ko.applyBindings(viewModel);
-
+/**
+* Set up the map to be displayed
+ */
     var mapOptions = {
         center: { lat: -36.847639, lng: 174.867529},
         zoom: 9,
@@ -203,9 +216,9 @@ function initialize() {
     var map = new google.maps.Map(document.getElementById('map-container'),
         mapOptions);
 
-
-
-// add markers to the map
+/**
+ * Add markers to the map
+  */
     var addMarker = function (beach) {
         beach.marker.setMap(map);
 
@@ -219,12 +232,14 @@ function initialize() {
                 beach.infoWindow.setContent(beach.contentString);
                 beach.infoWindow.open(map, this);
                 map.panTo(this.position);
-            }
+            };
         };
         google.maps.event.addListener(beach.marker, 'click', bindClick(beach.marker));
 
     };
-
+/**
+ * Add weather info to the map
+  */
     var weatherLayer = new google.maps.weather.WeatherLayer({
         temperatureUnits: google.maps.weather.TemperatureUnit.CELSIUS
     });
