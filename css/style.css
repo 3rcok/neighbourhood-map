@@ -141,13 +141,19 @@ li .media:hover {
         height: 16%;
     }
     #searchbar {
-        top: 30%;
+        top: 35%;
+        width: 100%;
+    }
+    .search {
+        width: 90%;
     }
     #map-container {
-        height: 90%;
+        height: 80%;
+        width: 90%;
+        margin: 0 auto;
     }
     #listbox {
-        top: 92%;
+        top: 80%;
         left: 0;
         width: 100%;
         height: 2%;
@@ -156,5 +162,28 @@ li .media:hover {
     #list-content {
         height: auto;
         width: auto;
+    }
+    .addInfo {
+        display: none;
+    }
+
+    h2 {
+        display: none;
+    }
+
+    .listbox-button {
+        margin-left: 0;
+        width: 90%;
+        margin-top: 1%;
+        border-radius: 5%;
+    }
+
+    .listbox-item {
+        line-height: 0.7em;
+    }
+
+    h3 {
+        padding: 0;
+        -webkit-margin-before: 0;
     }
 }
