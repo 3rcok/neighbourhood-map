@@ -3,22 +3,46 @@
 <head lang="en">
     <meta charset="UTF-8">
     <title>Beaches in Auckland</title>
-    <script type='text/javascript' src='js/knockout-3.2.0.js'></script>
-    <link rel="stylesheet" type="text/css" href="css/style.css">
-
+    <!--<script type='text/javascript' src='js/knockout-3.2.0.js'></script>-->
+    <link rel="stylesheet" type="text/css" href="css/build/style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
-    <div id="panel" style="margin-left: -62px">
-        <p class="inline">Are you ready to look at some cool beaches in Auckland?</p>
-        <button class="inline" id="drop">Show me</button>
-    </div>
-    <div id="map-container">
-    </div>
+<div id="header">
+    <form id="searchbar" data-bind="submit: query">
+        <input class="search" placeholder=" Search beaches" type="search"
+               data-bind="value: query, valueUpdate: 'keyup'" autocomplete="off" required>
+    </form>
+    <h1>Beaches in Auckland</h1>
 
-    <script type="text/javascript" src="js/jquery-1.11.1.min.js"></script>
-    <script type="text/javascript"
-            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB-hQ9XSdTmxybMtadlYOCsMkH5Yi6cBoI&libraries=weather">
-    </script>
-    <script type="text/javascript" src="js/main.js"></script>
+</div>
+<div id="listbox">
+    <div id="list-header">
+    <h2>Popular Beaches</h2>
+    <button class="listbox-button" id="drop" data-bind="click: showAllBeaches">Show all</button>
+    </div>
+    <div id="list-content">
+    <ul data-bind="template: {name:'beaches', HTMLimage:'beaches', getName:'beaches',marker:'beaches', foreach:filteredBeaches}"></ul>
+    </div>
+    <div id="list-footer"><p>All images can be found on <a href="http://www.flickr.com" target="_blank">Flickr</a></p></div>
+</div>
+<div id="map-container">
+</div>
+
+
+<script type="text/html" id="beaches">
+    <li class="listbox-item">
+        <h3 data-bind="text: name"></h3><br/>
+        <p class="addInfo">
+            Latitude: <span data-bind="text: lat"></span> <br/> Longitude: <span data-bind="text: lng"></span><br/>
+            </p>
+            <img class="media" data-bind="attr: {src: HTMLimage}, click: $root.getName"/><br/>
+    </li>
+</script>
+<!--<script type="text/javascript" src="js/jquery-1.11.1.min.js"></script>-->
+<script type="text/javascript"
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB-hQ9XSdTmxybMtadlYOCsMkH5Yi6cBoI&libraries=weather">
+</script>
+<script type="text/javascript" src="js/build/main.min.js"></script>
 </body>
 </html>
