@@ -100,6 +100,8 @@ function initialize() {
     beaches.push(new AucklandBeaches('Mercer Bay', -36.978575, 174.470000));
     beaches.push(new AucklandBeaches('Snells Beach', -36.416980, 174.729525));
 
+    window.mapBounds = new google.maps.LatLngBounds();
+
     var viewModel = {
         beaches: ko.observableArray(beaches),
         query: ko.observable(),
@@ -133,7 +135,7 @@ function initialize() {
 
     viewModel.filteredBeaches = ko.computed(function () {
         closeOpenInfoWindows();
-        if (!viewModel.query()||!$('.search').val()) {
+        if (!viewModel.query()) {
             addAllMarkers();
             return viewModel.beaches();
         } else {
@@ -147,71 +149,41 @@ function initialize() {
         }
     });
 
-
     viewModel.showAllBeaches = (function() {
         closeOpenInfoWindows();
-        if (!viewModel.query()) {
-            for (var i = 0, len = beaches.length; i < len; i++) {
+        viewModel.query('');
+        for (var i = 0, len = beaches.length; i < len; i++) {
             var beach = beaches[i];
             beach.infoWindow.close();
             (function (beach) {
                 setTimeout(function () {
                     addMarker(beach);
-                }, i * 200);
+                });
             })(beach);
-                console.log('no query ');
-                console.log(viewModel.beaches());
         }
             return viewModel.beaches();
-        } else {
-            $('.search').val('');
-            addAllMarkers();
-            console.log('query ');
-            console.log(viewModel.beaches());
-            return viewModel.beaches();
-        }
     });
 
     viewModel.getName = (function(beach) {
         removeAllMarkers();
         addMarker(beach);
-
         return ko.utils.arrayFilter(viewModel.beaches(), function() {
             if(beach.name.toLowerCase().indexOf(this.name.toLowerCase()) > -1){
-                console.log(beach.name);
+                viewModel.query(beach.name);
                 return beach.name;
             }
         });
     });
 
-    viewModel.goToChosenBeach = function(beach) {
-        viewModel.chosenBeachId(beach);
-        console.log('this'+viewModel.chosenBeachId(beach));
-    };
-
     ko.applyBindings(viewModel);
-
+    
     var mapOptions = {
-        center: { lat: -36.860771, lng: 175.416211},
+        center: { lat: -36.847639, lng: 174.867529},
         zoom: 9
     };
     var map = new google.maps.Map(document.getElementById('map-container'),
         mapOptions);
 
-// drop all markers onto the map
-//    $('#drop').on('click', function () {
-//        $('.search').val('');
-//        for (var i = 0, len = beaches.length; i < len; i++) {
-//            var beach = beaches[i];
-//            beach.infoWindow.close();
-//            (function (beach) {
-//                setTimeout(function () {
-//                    addMarker(beach);
-//                }, i * 200);
-//            })(beach);
-//        }
-//
-//    });
 
 
 // add markers to the map
@@ -232,35 +204,7 @@ function initialize() {
         };
         google.maps.event.addListener(beach.marker, 'click', bindClick(beach.marker));
 
-
-
-//create info window
-//        var infoWindow = new google.maps.InfoWindow({
-//            content: beach.contentString,
-//            maxWidth: 220
-//       });
-
-//        for(var i = 0; i < beaches.length; i++){
-//            var marker = beaches[i].marker;
-//            var content = beaches[i].contentString;
-//            google.maps.event.addListener(beach.marker, 'click', function (e) {
-//             infoWindow.setContent(beach.contentString);
-//                infoWindow.open(map, this);
-//                map.panTo(this.position);
-//            });
-
-
     };
-
-
-//// check if there is an open info window
-//    function isInfoWindowOpen() {
-//        if(infoWindow) {
-//            infoWindow.close();
-//        }
-//    }
-
-
 
     var weatherLayer = new google.maps.weather.WeatherLayer({
         temperatureUnits: google.maps.weather.TemperatureUnit.CELSIUS
@@ -270,6 +214,8 @@ function initialize() {
     var cloudLayer = new google.maps.weather.CloudLayer();
     cloudLayer.setMap(map);
 
-
+    $(window).on('resize', function(){
+        map.fitBounds(mapBounds);
+    });
 }
 google.maps.event.addDomListener(window, 'load', initialize);

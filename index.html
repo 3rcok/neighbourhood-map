@@ -32,7 +32,7 @@
 
 <script type="text/html" id="beaches">
     <li class="listbox-item">
-        <h3 data-bind="text: name, css: {selected: name == $root.chosenBeachId()}, click: $root.goToChosenBeach"></h3><br/>
+        <h3 data-bind="text: name"></h3><br/>
         Latitude: <span data-bind="text: lat"></span> & Longitude: <span data-bind="text: lng"></span><br/>
         <img class="media" data-bind="attr: {src: HTMLimage}, click: $root.getName"/><br/>
 
