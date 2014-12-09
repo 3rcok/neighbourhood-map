@@ -176,10 +176,29 @@ function initialize() {
     });
 
     ko.applyBindings(viewModel);
-    
+
     var mapOptions = {
         center: { lat: -36.847639, lng: 174.867529},
-        zoom: 9
+        zoom: 9,
+        mapTypeControl: true,
+        mapTypeControlOptions: {
+            style: google.maps.MapTypeControlStyle.HORIZONTAL_BAR,
+            position: google.maps.ControlPosition.BOTTOM_CENTER
+        },
+        panControl: true,
+        panControlOptions: {
+            position: google.maps.ControlPosition.TOP_RIGHT
+        },
+        zoomControl: true,
+        zoomControlOptions: {
+            style: google.maps.ZoomControlStyle.LARGE,
+            position: google.maps.ControlPosition.LEFT_CENTER
+        },
+        scaleControl: true,  // fixed to BOTTOM_RIGHT
+        streetViewControl: true,
+        streetViewControlOptions: {
+            position: google.maps.ControlPosition.LEFT_TOP
+        }
     };
     var map = new google.maps.Map(document.getElementById('map-container'),
         mapOptions);
