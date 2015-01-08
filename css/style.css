@@ -112,10 +112,14 @@ li .media:hover {
     background: url(http://i.imgur.com/lFkqn.png) left center no-repeat;
 }
 
-
-
 #map-container {
     margin-top: 7%;
+}
+
+#map-unavailable {
+    position: absolute;
+    left: 10%;
+    top: 40%;
 }
 
 #img {

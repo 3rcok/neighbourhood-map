@@ -44,41 +44,46 @@ function initialize() {
             self.setContentString();
         });
 
-        $.getJSON("http://en.wikipedia.org/w/api.php?callback=?",
-            {
-                srsearch: this.name,
-                action: "query",
-                list: "search",
-                timeout: 10000,
-                format: "json"
-            }).fail(function () {
-                self.HTMLinfo = 'Unfortunately we could not find any information on Wikipedia.';
-                self.HTMLtimestamp = '';
-                self.HTMLUrl = 'Please try Google <a href="http://www.google.com/';
-                self.setContentString();
-                self.active = false;
-            })
-            .done(function (data) {
-                if (data.query.search.length > 0) {
-                    var header = data.query.search[0].title;
-                    var info = data.query.search[0].snippet;
-                    var timestamp = data.query.search[0].timestamp;
-                    self.HTMLinfo = '<b>' + header + '</b>, ' + info + '';
-                    self.HTMLtimestamp = '(last visited ' + timestamp + ')';
-                    self.HTMLUrl = 'Attribution Wikipedia: <a href="http://en.wikipedia.org/w/index.php?title=' + header;
-                }
-                else {
-                    self.HTMLinfo = 'Unfortunately we could not find any information on Wikipedia.';
-                    self.HTMLtimestamp = '';
-                    self.HTMLUrl = 'Please try Google <a href="http://www.google.com/';
-                }
-                self.setContentString();
-            });
+    var wikiUrl = 'http://en.wikipedia.org/w/api.php?format=json&action=query&prop=images&rvprop=content&list=search&srsearch=@@searchstring@@';
+    $.ajax({
+        crossOrigin: true,
+        url: wikiUrl.replace('@@searchstring@@', this.name),
+        dataType: 'jsonp',
+        timeout: 8000
+    }).fail(function () {
+        self.HTMLinfo = 'Unfortunately we could not find any information on Wikipedia.';
+        self.HTMLtimestamp = '';
+        self.HTMLUrl = 'Please try <a href="http://www.google.com/" target="_blank">Google</a>';
+        self.setContentString();
+    }).error(function() {
+        self.HTMLinfo = 'Unfortunately we could not find any information on Wikipedia.';
+        self.HTMLtimestamp = '';
+        self.HTMLUrl = 'Please try <a href="http://www.google.com/" target="_blank">Google</a>';
+        self.setContentString();
+    }).success(function(data) {
+        console.log(data);
+        if(data.query.search.length > 0) {
+                console.log(data.query.search[0]);
+                var header = data.query.search[0].title;
+                var info = data.query.search[0].snippet;
+                var timestamp = data.query.search[0].timestamp;
+                self.HTMLinfo = '<b>' + header + '</b>, ' + info + '';
+                self.HTMLtimestamp = '(last visited ' + timestamp + ')';
+                self.HTMLUrl = 'Attribution Wikipedia: <a href="http://en.wikipedia.org/w/index.php?title=' + header + '"target="_blank"> Read full Article </a>';
+        }
+        else {
+            self.HTMLinfo = 'Unfortunately we could not find any information on Wikipedia.';
+            self.HTMLtimestamp = '';
+            self.HTMLUrl = 'Please try Google <a href="http://www.google.com/';
+        }
+        self.setContentString();
+        clearTimeout(wikiRequestTimeout);
+    });
 
         this.setContentString = function () {
             self.contentString = '<div id="content">' + '<div id="siteNotice">' + '</div>' + '<h1 id="firstHeading" class="firstHeading">' + this.name + '</h1>' +
                 '<div id="bodyContent">' + '<div id="img"><img class="media" src="' + self.HTMLimage() + '"/></div>' + '<p id="info" class="info">' + self.HTMLinfo + '</p>' +
-                '<p class="info">' + self.HTMLUrl + '" target="_blank"> Read full article </a> ' + self.HTMLtimestamp +
+                '<p class="info">' + self.HTMLUrl +  self.HTMLtimestamp +
                 '</p>' + '</div>' + '</div>';
         };
 
@@ -168,7 +173,7 @@ function initialize() {
         for (var i = 0, len = beaches.length; i < len; i++) {
             var beach = beaches[i];
             beach.infoWindow.close();
-            addMarkers(beach);
+            addMarker(beach);
         }
             return viewModel.beaches();
     });
@@ -252,4 +257,10 @@ function initialize() {
         map.fitBounds(mapBounds);
     });
 }
-google.maps.event.addDomListener(window, 'load', initialize);
+
+if(google){
+    google.maps.event.addDomListener(window, 'load', initialize);
+}
+else {
+    console.log('Error loading map');
+}
